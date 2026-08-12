@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  users User[]
+}
+
+model User {
+  id          String       @id @default(uuid())
+  name        String
+  email       String       @unique
+  password    String?
+  roleId      Int?
+  role        Role?        @relation(fields: [roleId], references: [id])
+  createdAt   DateTime     @default(now())
+  internships Internship[]
+  punches     Punch[]
+}
+
+model Internship {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  programName String?
+  startDate   DateTime?
+  endDate     DateTime?
+  active      Boolean  @default(true)
+}
+
+model Punch {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       String
+  ts         DateTime @default(now())
+  recordedBy String?
+  ip         String?
+  lat        Float?
+  lon        Float?
+  photoUrl   String?
+  note       String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, ts])
+}
